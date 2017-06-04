@@ -3,6 +3,7 @@ class GameBoard
   MINE = 'x'
   HIDDEN_CELL = '⬜'
   TOTAL_CELLS = BOARD_SIZE * BOARD_SIZE
+  EMPTY_CELL = '•'
   DIFFICULTY = 0.8 # between 0 and 1, representing probability that cell is mine.
 
   attr_reader :mine_board, :visible_board
