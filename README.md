@@ -1,5 +1,3 @@
-# ⚠ WIP ⚠
-
 ## minesweeper-ruby
 
 A console-based version of Minesweeper, written in Ruby.  
