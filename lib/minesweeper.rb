@@ -8,14 +8,6 @@ class Minesweeper
     @board = @game.game_board
   end
 
-  def enter_guess(coordinate)
-    loop do
-      guess = @ui.prompt_user_guess(coordinate)
-      break guess if @game.guess_valid?(guess)
-      @ui.print_wrong_input_message
-    end
-  end
-
   def play
     @ui.print_welcome_message
     # puts "Mine board is: "
@@ -33,6 +25,7 @@ class Minesweeper
   private
 
   def play_turn
+    @ui.draw_board(@board.mine_board)
     @ui.draw_board(@board.visible_board)
 
     x_coord = enter_guess("x")
@@ -47,6 +40,14 @@ class Minesweeper
       @ui.print_mine_message
     else
       @game.reveal_guess(guess, @board.visible_board)
+    end
+  end
+
+  def enter_guess(coordinate)
+    loop do
+      guess = @ui.prompt_user_guess(coordinate)
+      break guess if @game.guess_valid?(guess)
+      @ui.print_wrong_input_message
     end
   end
 end

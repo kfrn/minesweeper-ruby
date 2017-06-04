@@ -40,6 +40,8 @@ class Game
       board[y_coord][x_coord] = GameBoard::MINE
     elsif number == 0
       board[y_coord][x_coord] = '•'
+      # If it's 0, search surrounds.
+      
     else
       board[y_coord][x_coord] = number
     end
@@ -56,7 +58,7 @@ class Game
   def guess_values(guess)
     x_value = guess[:x_coord] - 1
     y_value = GameBoard::BOARD_SIZE - (guess[:y_coord]) # because counting from bottom rather than top
-    return {x_value: x_value, y_value: y_value}
+    {x_value: x_value, y_value: y_value}
   end
 
   def number_of_surrounding_mines(guess)
@@ -64,6 +66,14 @@ class Game
     cells = surrounding_cell_values(coordinates)
 
     cells.count(GameBoard::MINE)
+  end
+
+  def number?(input)
+    input.to_i != 0
+  end
+
+  def number_in_range?(input)
+    input.to_i.between?(1, GameBoard::BOARD_SIZE)
   end
 
   def surrounding_cell_values(coordinates)
@@ -106,13 +116,4 @@ class Game
 
     return surrounding_cells
   end
-
-  def number?(input)
-    input.to_i != 0
-  end
-
-  def number_in_range?(input)
-    input.to_i.between?(1, GameBoard::BOARD_SIZE)
-  end
-
 end
