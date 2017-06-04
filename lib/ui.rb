@@ -9,6 +9,32 @@ class UI
     puts "Hello and welcome to Minesweeper!"
   end
 
+  def print_game_play_instructions
+    puts "Since this is a command-line game, you aren't able to mark mines like in traditional minesweeper."
+    puts "The axes are arranged like this:"
+    puts
+    puts board_layout.map { |elem| elem + "\n" }
+    puts
+  end
+
+  def board_layout
+    [
+      "   ↑",
+      "10 |",
+      " 9 |",
+      " 8 |",
+      " 7 |",
+      " 6 |",
+      " 5 |",
+      " 4 |",
+      " 3 |",
+      " 2 |",
+      " 1 |",
+      "   + ― ― ― ― ― ― ― ― ― ― →",
+      "     1 2 3 4 5 6 7 8 9 10"
+    ]
+  end
+
   def draw_board(board)
     puts "Here's the board: "
     puts

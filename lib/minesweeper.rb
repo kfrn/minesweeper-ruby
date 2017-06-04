@@ -10,8 +10,7 @@ class Minesweeper
 
   def play
     @ui.print_welcome_message
-    # puts "Mine board is: "
-    # @ui.draw_board(@board.mine_board)
+    @ui.print_game_play_instructions
 
     play_turn while @game.in_progress?
 
@@ -25,7 +24,7 @@ class Minesweeper
   private
 
   def play_turn
-    @ui.draw_board(@board.mine_board)
+    # @ui.draw_board(@board.mine_board)
     @ui.draw_board(@board.visible_board)
 
     x_coord = enter_guess("x")

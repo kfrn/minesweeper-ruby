@@ -11,6 +11,12 @@ class Game
     @game_lost = false
     @empty_cells = []
   end
+  
+  def won?
+    untouched_cells = @game_board.visible_board.flatten.count(GameBoard::HIDDEN_CELL)
+    number_of_mines = @game_board.mine_board.flatten.count(GameBoard::MINE)
+    untouched_cells == number_of_mines
+  end
 
   def in_progress?
     !(won? || lost?)
@@ -51,17 +57,9 @@ class Game
 
   private
 
-  def won?
-    untouched_cells = @game_board.visible_board.flatten.count(GameBoard::HIDDEN_CELL)
-    number_of_mines = @game_board.mine_board.flatten.count(GameBoard::MINE)
-    untouched_cells == number_of_mines
-  end
-
   def axis_adjusted_coordinates(guess)
     x_value = guess[:x_coord] - 1
     y_value = GameBoard::BOARD_SIZE - (guess[:y_coord]) # because counting from bottom rather than top
-    hash = {x_value: x_value, y_value: y_value}
-    puts hash
     {x_value: x_value, y_value: y_value}
   end
 
@@ -133,20 +131,23 @@ class Game
         next
       end
 
-      x_coord = cell[0]
-      y_coord = cell[1]
+      reveal_neighbours_on_board(cell)
+    end
+  end
 
-      formatted_cell = {x_value: x_coord, y_value: y_coord}
-      cell_value = number_of_surrounding_mines(formatted_cell)
+  def reveal_neighbours_on_board(cell)
+    x_coord = cell[0]
+    y_coord = cell[1]
 
-      # NOTE: need to update to show all values adjacent to an empty cell, not just 1s.
-      if cell_value == 0
-        @empty_cells.push([x_coord, y_coord])
-        @game_board.visible_board[y_coord][x_coord] = GameBoard::EMPTY_CELL
-        show_empty_neighbours(formatted_cell)
-      elsif cell_value == 1
-        @game_board.visible_board[y_coord][x_coord] = 1
-      end
+    formatted_cell = {x_value: x_coord, y_value: y_coord}
+    cell_value = number_of_surrounding_mines(formatted_cell)
+
+    if cell_value == 0
+      @empty_cells.push([x_coord, y_coord])
+      @game_board.visible_board[y_coord][x_coord] = GameBoard::EMPTY_CELL
+      show_empty_neighbours(formatted_cell)
+    else
+      @game_board.visible_board[y_coord][x_coord] = number_of_surrounding_mines(formatted_cell)
     end
   end
 
