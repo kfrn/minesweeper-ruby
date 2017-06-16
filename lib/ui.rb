@@ -42,6 +42,19 @@ class UI
     puts
   end
 
+  def show_flags_on_winning_board(board)
+    flag_mines_board = board.map do |array|
+      array.map do |cell|
+        if cell == GameBoard::HIDDEN_CELL
+          cell = GameBoard::MINE_FLAG
+        else
+          cell
+        end
+      end
+    end
+    return flag_mines_board
+  end
+
   def format_board(board_as_nested_array)
     board_as_nested_array.map do |row|
         row.join(" ") + "\n"
@@ -56,6 +69,10 @@ class UI
   def print_wrong_input_message
     puts "Please enter a number in the range 1-#{GameBoard::BOARD_SIZE}"
   end
+
+  def clear_screen
+		system("clear")
+	end
 
   def print_mine_message
     puts "BOOM! You're dead!"

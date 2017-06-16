@@ -1,17 +1,17 @@
 require_relative 'game_board'
+require_relative 'coordinates'
 
 class Game
 
-  attr_reader :game_board, :guesses
+  attr_reader :game_board
   attr_accessor :game_lost
 
   def initialize
     @game_board = GameBoard.new
-    @guesses = []
     @game_lost = false
     @empty_cells = []
   end
-  
+
   def won?
     untouched_cells = @game_board.visible_board.flatten.count(GameBoard::HIDDEN_CELL)
     number_of_mines = @game_board.mine_board.flatten.count(GameBoard::MINE)
@@ -32,41 +32,36 @@ class Game
 
   def mine?(guess)
     coordinates = axis_adjusted_coordinates(guess)
-    x_coord = coordinates[:x_value]
-    y_coord = coordinates[:y_value]
-    @game_board.mine_board[y_coord][x_coord] == GameBoard::MINE
+
+    @game_board.mine_board[coordinates.y][coordinates.x] == GameBoard::MINE
   end
 
   def reveal_guess(guess, board)
     coordinates = axis_adjusted_coordinates(guess)
     number = number_of_surrounding_mines(coordinates)
 
-    x_coord = coordinates[:x_value]
-    y_coord = coordinates[:y_value]
-
     if mine?(guess)
-      board[y_coord][x_coord] = GameBoard::MINE
+      board[coordinates.y][coordinates.x] = GameBoard::MINE
     elsif number == 0
-      board[y_coord][x_coord] = GameBoard::EMPTY_CELL
-      @empty_cells.push([x_coord, y_coord])
+      board[coordinates.y][coordinates.x] = GameBoard::EMPTY_CELL
+      @empty_cells.push(coordinates)
       show_empty_neighbours(coordinates)
     else
-      board[y_coord][x_coord] = number
+      board[coordinates.y][coordinates.x] = number
     end
   end
 
   private
 
   def axis_adjusted_coordinates(guess)
-    x_value = guess[:x_coord] - 1
-    y_value = GameBoard::BOARD_SIZE - (guess[:y_coord]) # because counting from bottom rather than top
-    {x_value: x_value, y_value: y_value}
+    x_value = guess.x - 1
+    y_value = GameBoard::BOARD_SIZE - (guess.y) # because counting from bottom rather than top
+    return CoordinatePair.new(x_value, y_value)
   end
 
   def number_of_surrounding_mines(guess)
     cell_coords = get_surrounding_cell_coords(guess)
     cell_values = get_surrounding_cell_values(cell_coords)
-
     cell_values.count(GameBoard::MINE)
   end
 
@@ -74,50 +69,45 @@ class Game
     cell_values = []
 
     array_of_cell_coords.each do |cell|
-      x_coord = cell[0]
-      y_coord = cell[1]
-      cell_values.push(@game_board.mine_board[y_coord][x_coord])
+      cell_values.push(@game_board.mine_board[cell.y][cell.x])
     end
 
     return cell_values
   end
 
   def get_surrounding_cell_coords(coordinates)
-    x_coord = coordinates[:x_value]
-    y_coord = coordinates[:y_value]
-
     surrounding_cell_coords = []
 
-    if y_coord >= 1                                                                 # up
-      surrounding_cell_coords.push([x_coord, y_coord - 1])
+    if coordinates.y >= 1                                                                 # up
+      surrounding_cell_coords.push(CoordinatePair.new(coordinates.x, coordinates.y - 1))
     end
 
-    if y_coord < GameBoard::BOARD_SIZE - 1                                          # down
-      surrounding_cell_coords.push([x_coord, y_coord + 1])
+    if coordinates.y < GameBoard::BOARD_SIZE - 1                                          # down
+      surrounding_cell_coords.push(CoordinatePair.new(coordinates.x, coordinates.y + 1))
     end
 
-    if x_coord >= 1                                                                 # left
-      surrounding_cell_coords.push([x_coord - 1, y_coord])
+    if coordinates.x >= 1                                                                 # left
+      surrounding_cell_coords.push(CoordinatePair.new(coordinates.x - 1, coordinates.y))
     end
 
-    if x_coord < GameBoard::BOARD_SIZE - 1                                          # right
-      surrounding_cell_coords.push([x_coord + 1, y_coord])
+    if coordinates.x < GameBoard::BOARD_SIZE - 1                                          # right
+      surrounding_cell_coords.push(CoordinatePair.new(coordinates.x + 1, coordinates.y))
     end
 
-    if y_coord >= 1 && x_coord >= 1                                                 # top left
-      surrounding_cell_coords.push([x_coord - 1, y_coord - 1])
+    if coordinates.y >= 1 && coordinates.x >= 1                                                 # top left
+      surrounding_cell_coords.push(CoordinatePair.new(coordinates.x - 1, coordinates.y - 1))
     end
 
-    if y_coord < GameBoard::BOARD_SIZE - 1 && x_coord >= 1                          # bottom left
-      surrounding_cell_coords.push([x_coord - 1, y_coord + 1])
+    if coordinates.y < GameBoard::BOARD_SIZE - 1 && coordinates.x >= 1                          # bottom left
+      surrounding_cell_coords.push(CoordinatePair.new(coordinates.x - 1, coordinates.y + 1))
     end
 
-    if y_coord >= 1 && x_coord < GameBoard::BOARD_SIZE - 1                          # top right
-      surrounding_cell_coords.push([x_coord + 1, y_coord - 1])
+    if coordinates.y >= 1 && coordinates.x < GameBoard::BOARD_SIZE - 1                          # top right
+      surrounding_cell_coords.push(CoordinatePair.new(coordinates.x + 1, coordinates.y - 1))
     end
 
-    if y_coord < GameBoard::BOARD_SIZE - 1 && x_coord < GameBoard::BOARD_SIZE - 1   # bottom right
-      surrounding_cell_coords.push([x_coord + 1, y_coord + 1])
+    if coordinates.y < GameBoard::BOARD_SIZE - 1 && coordinates.x < GameBoard::BOARD_SIZE - 1   # bottom right
+      surrounding_cell_coords.push(CoordinatePair.new(coordinates.x + 1, coordinates.y + 1))
     end
 
     return surrounding_cell_coords
@@ -136,18 +126,14 @@ class Game
   end
 
   def reveal_neighbours_on_board(cell)
-    x_coord = cell[0]
-    y_coord = cell[1]
-
-    formatted_cell = {x_value: x_coord, y_value: y_coord}
-    cell_value = number_of_surrounding_mines(formatted_cell)
+    cell_value = number_of_surrounding_mines(cell)
 
     if cell_value == 0
-      @empty_cells.push([x_coord, y_coord])
-      @game_board.visible_board[y_coord][x_coord] = GameBoard::EMPTY_CELL
-      show_empty_neighbours(formatted_cell)
+      @empty_cells.push(cell)
+      @game_board.visible_board[cell.y][cell.x] = GameBoard::EMPTY_CELL
+      show_empty_neighbours(cell)
     else
-      @game_board.visible_board[y_coord][x_coord] = number_of_surrounding_mines(formatted_cell)
+      @game_board.visible_board[cell.y][cell.x] = cell_value
     end
   end
 

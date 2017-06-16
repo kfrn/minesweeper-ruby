@@ -1,6 +1,7 @@
 class GameBoard
   BOARD_SIZE = 10 # square
   MINE = 'x'
+  MINE_FLAG = '⚑'
   HIDDEN_CELL = '⬜'
   TOTAL_CELLS = BOARD_SIZE * BOARD_SIZE
   EMPTY_CELL = '•'
